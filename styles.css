@@ -1,0 +1,46 @@
+.btn-primary {
+  color: white;
+  background-color: blue;
+  margin: auto;
+  margin-bottom: 100px;
+}
+
+/* body {
+  display: grid;
+  grid-template-areas: "control log";
+} */
+
+.controls {
+  grid-area: control;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-log {
+  grid-area: log;
+}
+
+.event-log-contents {
+  resize: none;
+}
+
+label,
+button {
+  display: block;
+}
+
+#reload {
+  height: 2rem;
+}
+
+#map {
+  height: 400px;
+  /* The height is 400 pixels */
+  width: 100%;
+  /* The width is the width of the web page */
+}
+
+#line {
+  height: 500px;
+}
