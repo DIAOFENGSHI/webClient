@@ -36,7 +36,7 @@ var graph = document.getElementById("graph");
 var buttons = document.getElementById("buttons");
 
 function createEventSource(myChart, topic) {
-  eventSource = new EventSource(`http://localhost:8000/${topic}`);
+  eventSource = new EventSource(`http://13.238.218.46:8000/${topic}`);
   eventSource.onmessage = function (event) {
     const process = JSON.parse(event.data);
     console.log(event.data);
@@ -62,13 +62,6 @@ function createGraph() {
     { value: ["2018-08-15T10:40:03.147Z", 300] },
     { value: ["2018-08-15T11:50:14.335Z", 400] },
   ];
-  let historyTheft = [
-    ["2018-08-15T10:04:01.339Z", 100],
-    ["2018-08-15T10:14:13.914Z", 200],
-    ["2018-08-15T10:40:03.147Z", 300],
-    ["2018-08-15T11:50:14.335Z", 400],
-  ];
-  var data_x_defualt = [1, 2, 3, 4];
   var option = {
     title: {
       text: "Water Level",
@@ -191,7 +184,7 @@ function handleClickButton(element, query, topic) {
       break;
   }
   try {
-    fetch("http://localhost:8000/operatingSystem", setOptions(query))
+    fetch("http://13.238.218.46:8000/operatingSystem", setOptions(query))
       .then((response) => response.text())
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));

@@ -8,38 +8,28 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const port = 8000;
-let i = 0;
 
-app.get("/:topic", (req, res) => {
+app.get("/:system", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Access-Control-Allow-Origin", "*");
-  const topic = req.params.topic;
-  // stop the connect of MQTT
+  const system = req.params.system;
   // make a connection
-  var mqttClient = mqtt.connect("mqtt://13.55.32.170");
-  // set subscribe topic
-  mqttClient.subscribe(topic);
-  mqttClient.on("connect", function () {
-    console.log("Client connected to Mqtt broker");
-    // Subscribe to the response topic
-    mqttClient.subscribe(topic);
+  const mqttClient = mqtt.connect("mqtt://13.238.218.46", {
+    username: "rsp1",
+    password: "123456",
   });
-
+  // set subscribe topic
+  mqttClient.on("connect", function () {
+    console.log("Client_sub connected to Mqtt broker");
+    mqttClient.subscribe("project/pump/" + system);
+  });
   mqttClient.on("message", function (topic, message) {
     value = message.toString();
-    // message is Buffer
-    console.log("Received response from server:-", message.toString());
+    console.log("Received response from pump client: ", message.toString());
     res.write(`data: ${message.toString()}\n\n`);
   });
-
-  //   const intervalId = setInterval(() => {
-  //     const data = Math.random();
-  //     res.write(`data: ${data}\n\n`);
-  //   }, 1000);
-
   res.on("close", () => {
-    console.log("Client closed connection");
-    //clearInterval(intervalId);
+    console.log("Client_sub closed connection");
     mqttClient.end();
     res.end();
   });
@@ -47,47 +37,47 @@ app.get("/:topic", (req, res) => {
 
 app.post("/operatingSystem", (req, res) => {
   try {
-    console.log(req.body);
     let response = req.body.query;
-    var mqttClient = mqtt.connect("mqtt://13.55.32.170");
+    const mqttClient1 = mqtt.connect("mqtt://13.238.218.46", {
+      username: "rsp1",
+      password: "123456",
+    });
+    mqttClient1.on("connect", function () {
+      console.log("Client_pub connected to Mqtt broker");
+    });
     switch (response) {
       case "Open System":
-        mqttClient.publish("project/admin/rain", "on");
-        mqttClient.publish("project/admin/pump", "on");
-        mqttClient.publish("project/admin/traffic", "on");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/rain", "on");
+        mqttClient1.publish("project/admin/pump", "on");
+        mqttClient1.publish("project/admin/traffic", "on");
         break;
       case "Close System":
-        mqttClient.publish("project/admin/rain", "off");
-        mqttClient.publish("project/admin/pump", "off");
-        mqttClient.publish("project/admin/traffic", "off");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/rain", "off");
+        mqttClient1.publish("project/admin/pump", "off");
+        mqttClient1.publish("project/admin/traffic", "off");
         break;
       case "Stop Rain":
-        mqttClient.publish("project/admin/rain", "off");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/rain", "off");
         break;
       case "Stop Pump":
-        mqttClient.publish("project/admin/pump", "off");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/pump", "off");
         break;
       case "Stop Traffic":
-        mqttClient.publish("project/admin/traffic", "off");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/traffic", "off");
         break;
       case "Open Rain":
-        mqttClient.publish("project/admin/rain", "on");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/rain", "on");
         break;
       case "Open Pump":
-        mqttClient.publish("project/admin/pump", "on");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/pump", "on");
         break;
       case "Open Traffic":
-        mqttClient.publish("project/admin/traffic", "on");
-        res.status(200).send("good");
+        mqttClient1.publish("project/admin/traffic", "restart");
         break;
     }
+    mqttClient1.end();
+    console.log("Client_sub closed connection");
+    res.status(200).send(response);
   } catch (err) {
     console.log(err);
     res.status(404).send("null");
